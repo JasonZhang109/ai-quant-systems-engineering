@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>《AI量化系统工程：研究、开发与验证》</title>
+<meta name="description" content="《AI量化系统工程：研究、开发与验证》全书在线阅读，26 个章级部分。">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{--fg:#1a1a1a;--muted:#5b6470;--line:#e2e5ea;--bg:#fff;--soft:#f6f7f9;
+ --accent:#1f5fa9;--side:#fafbfc;--hl:#eef4fc;--bar:255,255,255;}
+:root[data-theme="dark"]{--fg:#dfe3e8;--muted:#96a0ac;--line:#2b323a;--bg:#151a1f;
+ --soft:#1d242b;--accent:#6fa8e8;--side:#11161a;--hl:#22303f;--bar:21,26,31;}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--fg);
+ font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+ font-size:16.5px;line-height:1.95;}
+
+/* ---- 顶栏与进度 ---- */
+#prog{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+.bar{position:fixed;top:0;left:0;right:0;height:3.1rem;display:flex;align-items:center;gap:.6rem;
+ padding:0 1rem;background:rgba(var(--bar),.92);backdrop-filter:blur(8px);
+ border-bottom:1px solid var(--line);z-index:50;}
+.bar .brand{flex:1;font-size:.9rem;font-weight:600;color:var(--fg);text-decoration:none;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar button{border:1px solid var(--line);background:transparent;color:var(--fg);
+ border-radius:6px;padding:.3rem .55rem;font-size:.85rem;cursor:pointer;line-height:1.2;}
+.bar button:hover{background:var(--soft);}
+#menu{display:none;}
+
+/* ---- 侧栏目录 ---- */
+.side{position:fixed;top:3.1rem;bottom:0;left:0;width:19.5rem;background:var(--side);
+ border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:40;}
+.side .head{padding:.8rem 1rem .5rem;font-size:.78rem;letter-spacing:.08em;color:var(--muted);}
+.side input{width:calc(100% - 2rem);margin:0 1rem .6rem;padding:.42rem .6rem;
+ border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-size:.85rem;}
+.side input:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+.tocnav{flex:1;overflow-y:auto;padding:.2rem 1rem 2rem;font-size:.86rem;line-height:1.65;}
+.tocnav ul{list-style:none;margin:0;padding-left:.85rem;}
+.tocnav>ul{padding-left:0;}
+.tocnav li{margin:.1rem 0;}
+.tocnav a{display:block;padding:.12rem .35rem;border-radius:4px;color:var(--muted);text-decoration:none;}
+.tocnav a:hover{background:var(--soft);color:var(--fg);}
+.tocnav>ul>li>a{font-weight:600;color:var(--fg);margin-top:.25rem;}
+.tocnav a.on{background:var(--hl);color:var(--accent);font-weight:600;}
+.tocnav li.hide{display:none;}
+.scrim{display:none;position:fixed;inset:3.1rem 0 0 0;background:rgba(0,0,0,.35);z-index:35;}
+
+/* ---- 正文 ---- */
+.wrap{max-width:46rem;margin:0 0 0 19.5rem;padding:4.4rem 2.2rem 8rem;scroll-margin-top:4rem;}
+h1,h2,h3,h4{line-height:1.45;font-weight:700;scroll-margin-top:3.9rem;}
+h1{font-size:1.85rem;margin:3.4rem 0 1.2rem;padding-bottom:.5rem;border-bottom:2px solid var(--line);}
+h2{font-size:1.35rem;margin:2.4rem 0 .9rem;}
+h3{font-size:1.12rem;margin:1.9rem 0 .7rem;}
+h4{font-size:1rem;margin:1.5rem 0 .6rem;}
+p{margin:.85rem 0;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+hr{border:0;border-top:1px solid var(--line);margin:2.6rem 0;}
+blockquote{margin:1.2rem 0;padding:.7rem 1.1rem;background:var(--soft);
+ border-left:4px solid var(--accent);border-radius:0 4px 4px 0;}
+blockquote p{margin:.4rem 0;}
+code{background:var(--soft);padding:.12em .38em;border-radius:3px;
+ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;
+ overflow-wrap:anywhere;}
+pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;
+ padding:.9rem 1.1rem;overflow-x:auto;line-height:1.6;}
+pre code{background:none;padding:0;font-size:.86rem;overflow-wrap:normal;}
+table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.92rem;display:block;overflow-x:auto;}
+th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top;}
+th{background:var(--soft);font-weight:600;}
+tr:nth-child(even) td{background:rgba(127,127,127,.04);}
+img{max-width:100%;height:auto;}
+
+/* ---- 章节目录卡片 ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(13.5rem,1fr));gap:.6rem;margin:1.4rem 0 2.6rem;}
+.grid a{display:flex;gap:.55rem;align-items:baseline;padding:.6rem .75rem;border:1px solid var(--line);
+ border-radius:8px;color:var(--fg);text-decoration:none;background:var(--bg);}
+.grid a:hover{background:var(--hl);border-color:var(--accent);text-decoration:none;}
+.grid .num{font-size:.74rem;color:var(--accent);font-weight:700;white-space:nowrap;
+ font-variant-numeric:tabular-nums;}
+.grid .tt{font-size:.9rem;line-height:1.45;}
+
+#back{position:fixed;right:1.1rem;bottom:1.1rem;background:var(--accent);color:#fff;
+ width:2.4rem;height:2.4rem;line-height:2.3rem;text-align:center;border-radius:50%;
+ font-size:1rem;box-shadow:0 2px 10px rgba(0,0,0,.2);opacity:0;pointer-events:none;
+ transition:opacity .2s;z-index:45;text-decoration:none;}
+#back.show{opacity:1;pointer-events:auto;}
+
+@media (max-width:960px){
+ .bar{display:flex;} #menu{display:inline-block;}
+ .side{transform:translateX(-100%);transition:transform .22s ease;width:17.5rem;box-shadow:0 0 24px rgba(0,0,0,.18);}
+ .side.open{transform:none;}
+ .scrim.show{display:block;}
+ .wrap{margin-left:0;padding:4.2rem 1.15rem 6rem;max-width:none;}
+ h1{font-size:1.5rem;} h2{font-size:1.2rem;}
+ body{font-size:16px;line-height:1.9;}
+}
+@media print{
+ .bar,.side,.scrim,#back,#prog{display:none!important;}
+ .wrap{margin:0;max-width:none;padding:0;}
+ body{font-size:10.5pt;line-height:1.75;background:#fff;color:#000;}
+ h1{page-break-before:always;font-size:16pt;}
+ h1:first-of-type{page-break-before:avoid;}
+ h2,h3{page-break-after:avoid;}
+ pre,table,blockquote{page-break-inside:avoid;}
+ .grid{display:none;}
+}
+
+.wrap{max-width:52rem;margin:0 auto;padding:4.2rem 1.5rem 6rem;}
+h1{border:none;margin:0 0 1rem;font-size:2rem;line-height:1.35;}
+.lede{font-size:1.02rem;color:var(--muted);line-height:1.85;}
+.btns{display:flex;gap:.6rem;flex-wrap:wrap;margin:1.7rem 0 2.6rem;}
+.btn{display:inline-block;padding:.55rem 1.05rem;border-radius:8px;background:var(--accent);
+ color:#fff;font-size:.92rem;}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--fg);}
+.btn:hover{text-decoration:none;opacity:.88;}
+.foot{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line);
+ font-size:.84rem;color:var(--muted);}
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>《AI量化系统工程：研究、开发与验证》</h1>
+<p class="lede">一本中文技术书稿。以一个已经跑起来的<b>事件驱动量化系统</b>为解剖对象，按"研究 → 开发 → 验证"三段展开，
+讨论在真实约束（单机、真实数据、真实回执、真实故障）下如何把系统做出来，又如何诚实地证明它做到了什么。</p>
+<p class="lede">写作原则只有一条：<b>每个结论都要有材料支撑；没有材料，就写明"没有"。</b></p>
+<div class="btns">
+  <a class="btn" href="AI量化系统工程_全书合稿_v1.0.html">开始阅读 →</a>
+  <a class="btn ghost" href="AI量化系统工程_全书合稿_v1.0.md">Markdown</a>
+  <a class="btn ghost" href="https://github.com/JasonZhang109/ai-quant-systems-engineering">GitHub</a>
+</div>
+<h2>章节目录</h2>
+<div class="grid"><a href="AI量化系统工程_全书合稿_v1.0.html#序章-一套已经完成的-ai-量化系统如何写成一本技术书"><span class="num">序章</span><span class="tt">一套已经完成的 AI 量化系统，如何写成一本技术书</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第01章-研究目标系统边界与全书主线"><span class="num">第01章</span><span class="tt">研究目标、系统边界与全书主线</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第02章-总体架构核心对象与端到端数据流"><span class="num">第02章</span><span class="tt">总体架构、核心对象与端到端数据流</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第03章-一次真实产业事件的完整处理路径"><span class="num">第03章</span><span class="tt">一次真实产业事件的完整处理路径</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第04章-数据来源采集链路与质量治理"><span class="num">第04章</span><span class="tt">数据来源、采集链路与质量治理</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第05章-历史时点数据版本与pit工程"><span class="num">第05章</span><span class="tt">历史时点、数据版本与PIT工程</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第06章-公司研究产业关系与股票映射"><span class="num">第06章</span><span class="tt">公司研究、产业关系与股票映射</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第07章-事件分类去重与生命周期管理"><span class="num">第07章</span><span class="tt">事件分类、去重与生命周期管理</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第08章-llm任务分工模型调用与成本控制"><span class="num">第08章</span><span class="tt">LLM任务分工、模型调用与成本控制</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第09章-结构化抽取证据绑定与事实校验"><span class="num">第09章</span><span class="tt">结构化抽取、证据绑定与事实校验</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第10章-经营传导预期差与反证分析"><span class="num">第10章</span><span class="tt">经营传导、预期差与反证分析</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第11章-rag与agent原理设计取舍与量化系统思考"><span class="num">第11章</span><span class="tt">RAG与Agent：原理、设计取舍与量化系统思考</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第12章-研究工作流工具接口与任务可靠性"><span class="num">第12章</span><span class="tt">研究工作流、工具接口与任务可靠性</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第13章-llm评测知识泄漏与增量贡献"><span class="num">第13章</span><span class="tt">LLM评测、知识泄漏与增量贡献</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第14章-事件alpha假说特征标签与样本构造"><span class="num">第14章</span><span class="tt">事件Alpha：假说、特征、标签与样本构造</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第15章-多因子研究风险基线与eq-mf的独立评价"><span class="num">第15章</span><span class="tt">多因子研究、风险基线与EQ-MF的独立评价</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第16章-回测引擎交易约束与成本建模"><span class="num">第16章</span><span class="tt">回测引擎、交易约束与成本建模</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第17章-样本外验证研究选择与统计不确定性"><span class="num">第17章</span><span class="tt">样本外验证、研究选择与统计不确定性</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第18章-收益归因稳健性与策略容量"><span class="num">第18章</span><span class="tt">收益归因、稳健性与策略容量</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第19章-信号处置从研究输出到组合候选"><span class="num">第19章</span><span class="tt">信号处置：从研究输出到组合候选</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第20章-组合构建风险预算与资本配置"><span class="num">第20章</span><span class="tt">组合构建、风险预算与资本配置</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第21章-执行接口订单生命周期与账本对账"><span class="num">第21章</span><span class="tt">执行接口、订单生命周期与账本对账</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第22章-真实前向记录与持续迭代"><span class="num">第22章</span><span class="tt">真实前向记录与持续迭代</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第23章-系统运行可观测性与故障诊断"><span class="num">第23章</span><span class="tt">系统运行、可观测性与故障诊断</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#第24章-系统演进ai辅助开发与实战复盘"><span class="num">第24章</span><span class="tt">系统演进、AI辅助开发与实战复盘</span></a><a href="AI量化系统工程_全书合稿_v1.0.html#附录-参考登记与复现"><span class="num">附录</span><span class="tt">参考、登记与复现</span></a></div>
+<p class="foot">许可：CC BY-NC-ND 4.0 ｜ 书中的规模、行数、表数均为时点快照，引用时请连同书内标注的时点一并引用。</p>
+</main>
+</body>
+</html>

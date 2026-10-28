@@ -132,50 +132,105 @@ def build_html_toc(body_html):
 
 
 CSS = """
-:root{--fg:#1a1a1a;--muted:#5b6470;--line:#e2e5ea;--bg:#fff;--soft:#f6f7f9;--accent:#1f5fa9;}
+:root{--fg:#1a1a1a;--muted:#5b6470;--line:#e2e5ea;--bg:#fff;--soft:#f6f7f9;
+ --accent:#1f5fa9;--side:#fafbfc;--hl:#eef4fc;--bar:255,255,255;}
+:root[data-theme="dark"]{--fg:#dfe3e8;--muted:#96a0ac;--line:#2b323a;--bg:#151a1f;
+ --soft:#1d242b;--accent:#6fa8e8;--side:#11161a;--hl:#22303f;--bar:21,26,31;}
 *{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
 body{margin:0;background:var(--bg);color:var(--fg);
  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
  font-size:16.5px;line-height:1.95;}
-.wrap{max-width:52rem;margin:0 auto;padding:3rem 1.6rem 6rem;}
-h1,h2,h3,h4{line-height:1.45;font-weight:700;}
+
+/* ---- 顶栏与进度 ---- */
+#prog{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+.bar{position:fixed;top:0;left:0;right:0;height:3.1rem;display:flex;align-items:center;gap:.6rem;
+ padding:0 1rem;background:rgba(var(--bar),.92);backdrop-filter:blur(8px);
+ border-bottom:1px solid var(--line);z-index:50;}
+.bar .brand{flex:1;font-size:.9rem;font-weight:600;color:var(--fg);text-decoration:none;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar button{border:1px solid var(--line);background:transparent;color:var(--fg);
+ border-radius:6px;padding:.3rem .55rem;font-size:.85rem;cursor:pointer;line-height:1.2;}
+.bar button:hover{background:var(--soft);}
+#menu{display:none;}
+
+/* ---- 侧栏目录 ---- */
+.side{position:fixed;top:3.1rem;bottom:0;left:0;width:19.5rem;background:var(--side);
+ border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:40;}
+.side .head{padding:.8rem 1rem .5rem;font-size:.78rem;letter-spacing:.08em;color:var(--muted);}
+.side input{width:calc(100% - 2rem);margin:0 1rem .6rem;padding:.42rem .6rem;
+ border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-size:.85rem;}
+.side input:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+.tocnav{flex:1;overflow-y:auto;padding:.2rem 1rem 2rem;font-size:.86rem;line-height:1.65;}
+.tocnav ul{list-style:none;margin:0;padding-left:.85rem;}
+.tocnav>ul{padding-left:0;}
+.tocnav li{margin:.1rem 0;}
+.tocnav a{display:block;padding:.12rem .35rem;border-radius:4px;color:var(--muted);text-decoration:none;}
+.tocnav a:hover{background:var(--soft);color:var(--fg);}
+.tocnav>ul>li>a{font-weight:600;color:var(--fg);margin-top:.25rem;}
+.tocnav a.on{background:var(--hl);color:var(--accent);font-weight:600;}
+.tocnav li.hide{display:none;}
+.scrim{display:none;position:fixed;inset:3.1rem 0 0 0;background:rgba(0,0,0,.35);z-index:35;}
+
+/* ---- 正文 ---- */
+.wrap{max-width:46rem;margin:0 0 0 19.5rem;padding:4.4rem 2.2rem 8rem;scroll-margin-top:4rem;}
+h1,h2,h3,h4{line-height:1.45;font-weight:700;scroll-margin-top:3.9rem;}
 h1{font-size:1.85rem;margin:3.4rem 0 1.2rem;padding-bottom:.5rem;border-bottom:2px solid var(--line);}
-h2{font-size:1.35rem;margin:2.4rem 0 .9rem;color:#111;}
-h3{font-size:1.12rem;margin:1.9rem 0 .7rem;color:#222;}
-h4{font-size:1rem;margin:1.5rem 0 .6rem;color:#333;}
+h2{font-size:1.35rem;margin:2.4rem 0 .9rem;}
+h3{font-size:1.12rem;margin:1.9rem 0 .7rem;}
+h4{font-size:1rem;margin:1.5rem 0 .6rem;}
 p{margin:.85rem 0;}
 a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
 hr{border:0;border-top:1px solid var(--line);margin:2.6rem 0;}
 blockquote{margin:1.2rem 0;padding:.7rem 1.1rem;background:var(--soft);
- border-left:4px solid var(--accent);color:#333;border-radius:0 4px 4px 0;}
+ border-left:4px solid var(--accent);border-radius:0 4px 4px 0;}
 blockquote p{margin:.4rem 0;}
 code{background:var(--soft);padding:.12em .38em;border-radius:3px;
- font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;}
+ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;
+ overflow-wrap:anywhere;}
 pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;
  padding:.9rem 1.1rem;overflow-x:auto;line-height:1.6;}
-pre code{background:none;padding:0;font-size:.86rem;}
+pre code{background:none;padding:0;font-size:.86rem;overflow-wrap:normal;}
 table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.92rem;display:block;overflow-x:auto;}
 th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top;}
 th{background:var(--soft);font-weight:600;}
-tr:nth-child(even) td{background:#fbfcfd;}
-#toc{background:var(--soft);border:1px solid var(--line);border-radius:6px;
- padding:1rem 1.4rem;margin:1.5rem 0 2.5rem;font-size:.94rem;max-height:34rem;overflow-y:auto;}
-#toc ul{list-style:none;margin:.25rem 0 .25rem 1rem;padding:0;}
-#toc>ul{margin-left:0;}
-#toc li{margin:.16rem 0;}
-#toc a{color:#333;}
-#toc>ul>li>a{font-weight:600;color:#111;}
+tr:nth-child(even) td{background:rgba(127,127,127,.04);}
+img{max-width:100%;height:auto;}
+
+/* ---- 章节目录卡片 ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(13.5rem,1fr));gap:.6rem;margin:1.4rem 0 2.6rem;}
+.grid a{display:flex;gap:.55rem;align-items:baseline;padding:.6rem .75rem;border:1px solid var(--line);
+ border-radius:8px;color:var(--fg);text-decoration:none;background:var(--bg);}
+.grid a:hover{background:var(--hl);border-color:var(--accent);text-decoration:none;}
+.grid .num{font-size:.74rem;color:var(--accent);font-weight:700;white-space:nowrap;
+ font-variant-numeric:tabular-nums;}
+.grid .tt{font-size:.9rem;line-height:1.45;}
+
 #back{position:fixed;right:1.1rem;bottom:1.1rem;background:var(--accent);color:#fff;
- padding:.5rem .9rem;border-radius:20px;font-size:.82rem;box-shadow:0 2px 8px rgba(0,0,0,.18);}
+ width:2.4rem;height:2.4rem;line-height:2.3rem;text-align:center;border-radius:50%;
+ font-size:1rem;box-shadow:0 2px 10px rgba(0,0,0,.2);opacity:0;pointer-events:none;
+ transition:opacity .2s;z-index:45;text-decoration:none;}
+#back.show{opacity:1;pointer-events:auto;}
+
+@media (max-width:960px){
+ .bar{display:flex;} #menu{display:inline-block;}
+ .side{transform:translateX(-100%);transition:transform .22s ease;width:17.5rem;box-shadow:0 0 24px rgba(0,0,0,.18);}
+ .side.open{transform:none;}
+ .scrim.show{display:block;}
+ .wrap{margin-left:0;padding:4.2rem 1.15rem 6rem;max-width:none;}
+ h1{font-size:1.5rem;} h2{font-size:1.2rem;}
+ body{font-size:16px;line-height:1.9;}
+}
 @media print{
- body{font-size:10.5pt;line-height:1.75;}
- .wrap{max-width:none;padding:0;}
+ .bar,.side,.scrim,#back,#prog{display:none!important;}
+ .wrap{margin:0;max-width:none;padding:0;}
+ body{font-size:10.5pt;line-height:1.75;background:#fff;color:#000;}
  h1{page-break-before:always;font-size:16pt;}
  h1:first-of-type{page-break-before:avoid;}
  h2,h3{page-break-after:avoid;}
  pre,table,blockquote{page-break-inside:avoid;}
- #back{display:none;}
+ .grid{display:none;}
 }
 """
 
@@ -283,7 +338,22 @@ def main():
     toc = build_html_toc(body_html)
     ph = f'<p>{TOC_PLACEHOLDER}</p>'
     assert ph in body_html, '目录占位符未出现在渲染结果中'
-    body_html = body_html.replace(ph, f'<div id="toc">{toc}</div>')
+
+    # 正文里的「目录」位置放章级卡片；细目全部交给左侧栏（避免 285 行重复两遍）
+    h1s = [(hid, html.unescape(re.sub(r'<[^>]+>', '', inner)).strip())
+           for lvl, hid, inner in re.findall(r'<h([1-4]) id="([^"]+)">(.*?)</h\1>', body_html, re.S)
+           if lvl == '1']
+    h1s = [(h, t) for h, t in h1s if not t.startswith('《')]
+    assert len(h1s) == 26, f'章级标题应为 26，实际 {len(h1s)}'
+
+    def card(hid, text):
+        parts = text.split('\u3000')
+        num, tt = (parts[0], parts[1]) if len(parts) > 1 else ('', text)
+        return (f'<a href="#{hid}"><span class="num">{html.escape(num)}</span>'
+                f'<span class="tt">{html.escape(tt)}</span></a>')
+
+    body_html = body_html.replace(
+        ph, '<div class="grid">' + ''.join(card(h, t) for h, t in h1s) + '</div>')
 
     # Mermaid → <pre class="mermaid">
     body_html = re.sub(
@@ -291,25 +361,100 @@ def main():
         lambda m: '<pre class="mermaid">' + html.unescape(m.group(1)) + '</pre>',
         body_html, flags=re.S)
 
-    # 目录链接自检：每个 href 目标必须存在于 id 集合中
-    ids = set(re.findall(r'\sid="([^"]+)"', body_html))
-    hrefs = set(re.findall(r'<a href="#([^"]+)"', body_html))
-    missing = sorted(hrefs - ids)
-    assert not missing, f'目录存在悬空链接: {missing[:5]}'
+    toc_links = toc.count('<a href="#')
 
     doc = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>《{BOOK_TITLE}：{BOOK_SUB}》全书合稿 v1.0</title>
+<title>《{BOOK_TITLE}：{BOOK_SUB}》</title>
+<meta name="description" content="《{BOOK_TITLE}：{BOOK_SUB}》全书，{len(h1s)} 个章级部分，单文件离线可读。">
+<meta name="color-scheme" content="light dark">
 <style>{CSS}</style>
 </head>
 <body>
-<div class="wrap" id="top">
+<div id="prog"></div>
+<header class="bar">
+  <button id="menu" aria-label="打开目录">☰ 目录</button>
+  <a class="brand" href="#top">《{BOOK_TITLE}》</a>
+  <button id="theme" aria-label="切换深浅色">◐</button>
+</header>
+<aside class="side" id="toc">
+  <div class="head">目录 · 共 {toc_links} 节</div>
+  <input id="q" type="search" placeholder="筛选章节，如「回测」「第16章」" autocomplete="off">
+  <nav class="tocnav">{toc}</nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+<main class="wrap" id="top">
 {body_html}
-</div>
-<a id="back" href="#toc">↑ 目录</a>
+</main>
+<a id="back" href="#top" title="回到顶部" aria-label="回到顶部">↑</a>
+<script>
+(function(){{
+  var root=document.documentElement,prog=document.getElementById('prog'),
+      back=document.getElementById('back'),side=document.getElementById('toc'),
+      scrim=document.getElementById('scrim'),menu=document.getElementById('menu'),
+      q=document.getElementById('q'),
+      links=[].slice.call(document.querySelectorAll('.tocnav a')),
+      heads=[].slice.call(document.querySelectorAll('.wrap h1[id],.wrap h2[id]')),
+      byId={{}},ticking=false;
+  links.forEach(function(a){{var k=a.getAttribute('href').slice(1);if(!byId[k])byId[k]=a;}});
+
+  var saved=null;
+  try{{saved=localStorage.getItem('aq-theme');}}catch(e){{}}
+  if(saved)root.setAttribute('data-theme',saved);
+  else if(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches)
+    root.setAttribute('data-theme','dark');
+  document.getElementById('theme').addEventListener('click',function(){{
+    var cur=root.getAttribute('data-theme')==='dark'?'light':'dark';
+    root.setAttribute('data-theme',cur);
+    try{{localStorage.setItem('aq-theme',cur);}}catch(e){{}}
+  }});
+
+  function close(){{side.classList.remove('open');scrim.classList.remove('show');}}
+  menu.addEventListener('click',function(){{
+    side.classList.toggle('open');scrim.classList.toggle('show');
+  }});
+  scrim.addEventListener('click',close);
+  links.forEach(function(a){{
+    a.addEventListener('click',function(){{if(innerWidth<=960)close();}});
+  }});
+
+  var lis=[].slice.call(document.querySelectorAll('.tocnav li'));
+  q.addEventListener('input',function(){{
+    var v=q.value.trim().toLowerCase();
+    lis.forEach(function(li){{li.classList.remove('hide');}});
+    if(!v)return;
+    lis.forEach(function(li){{
+      var own=li.querySelector('a'),kid=li.querySelector('ul');
+      var hit=own&&own.textContent.toLowerCase().indexOf(v)>=0;
+      if(!hit&&kid)hit=[].some.call(kid.querySelectorAll('a'),function(a){{
+        return a.textContent.toLowerCase().indexOf(v)>=0;}});
+      if(!hit)li.classList.add('hide');
+    }});
+  }});
+
+  function onScroll(){{
+    var h=document.documentElement.scrollHeight-innerHeight;
+    prog.style.width=(h>0?(scrollY/h*100):0)+'%';
+    back.classList.toggle('show',scrollY>700);
+    var cur=null;
+    for(var i=0;i<heads.length;i++){{
+      if(heads[i].getBoundingClientRect().top<=132)cur=heads[i];else break;
+    }}
+    if(cur&&byId[cur.id]){{
+      links.forEach(function(a){{a.classList.remove('on');}});
+      byId[cur.id].classList.add('on');
+    }}
+    ticking=false;
+  }}
+  addEventListener('scroll',function(){{
+    if(!ticking){{ticking=true;requestAnimationFrame(onScroll);}}
+  }},{{passive:true}});
+  onScroll();
+}})();
+</script>
 <script type="module">
 try {{
   const m = await import('https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs');
@@ -324,6 +469,11 @@ try {{
 </body>
 </html>
 """
+    # 链接自检：在**整份文档**上做——侧栏目录也要纳入，否则检查会退化成空集
+    ids = set(re.findall(r'\sid="([^"]+)"', doc))
+    hrefs = set(re.findall(r'<a href="#([^"]+)"', doc))
+    missing = sorted(hrefs - ids)
+    assert not missing, f'目录存在悬空链接: {missing[:5]}'
     io.open(OUT_HTML, 'w', encoding='utf-8').write(doc)
 
     print(f'成书 MD  : {OUT_MD}  {len(merged.encode("utf-8")):,} B')
@@ -333,7 +483,7 @@ try {{
     else:
         print('附记汇编 : （源文件无附记，未生成）')
     print(f'正文 {body_total:,} B ｜ 附记 {notes_total:,} B ｜ 源文件合计 {body_total+notes_total:,} B')
-    print(f'目录链接 {len(hrefs)} 条，全部命中（0 悬空）')
+    print(f'目录链接 {toc_links} 条，全部命中（0 悬空）')
 
 
 if __name__ == '__main__':
