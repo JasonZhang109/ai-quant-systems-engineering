@@ -22,8 +22,8 @@ body{margin:0;padding-left:19.5rem;background:var(--bg);color:var(--fg);
 .bar{position:fixed;top:0;left:0;right:0;height:3.1rem;display:flex;align-items:center;gap:.6rem;
  padding:0 1rem;background:rgba(var(--bar),.92);backdrop-filter:blur(8px);
  border-bottom:1px solid var(--line);z-index:50;}
-.bar .brand{flex:1;font-size:.9rem;font-weight:600;color:var(--fg);text-decoration:none;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar .brand{flex:0 1 auto;min-width:0;font-size:.9rem;font-weight:600;color:var(--fg);
+ text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bar button{border:1px solid var(--line);background:transparent;color:var(--fg);
  border-radius:6px;padding:.3rem .55rem;font-size:.85rem;cursor:pointer;line-height:1.2;}
 .bar button:hover{background:var(--soft);}
@@ -82,6 +82,33 @@ img{max-width:100%;height:auto;}
  font-variant-numeric:tabular-nums;}
 .grid .tt{font-size:.9rem;line-height:1.45;}
 
+/* ---- 侧栏折叠 ---- */
+.tocnav>ul>li{position:relative;}
+.tocnav>ul>li>a{padding-right:1.5rem;}
+.tocnav li.collapsed>ul{display:none;}
+.tocnav .caret{position:absolute;right:-.1rem;top:.28rem;width:1.3rem;height:1.3rem;
+ border:0;background:none;color:var(--muted);cursor:pointer;padding:0;font-size:.72rem;
+ line-height:1.3rem;border-radius:4px;transition:transform .15s;}
+.tocnav .caret:hover{background:var(--soft);color:var(--fg);}
+.tocnav li:not(.collapsed)>.caret{transform:rotate(90deg);}
+
+/* ---- 章末翻页 ---- */
+.chapnav{display:flex;justify-content:space-between;gap:.8rem;margin:3.4rem 0 .5rem;
+ padding-top:1.3rem;border-top:1px solid var(--line);}
+.chapnav a{display:flex;flex-direction:column;gap:.15rem;max-width:48%;
+ padding:.65rem .9rem;border:1px solid var(--line);border-radius:8px;
+ color:var(--fg);text-decoration:none;}
+.chapnav a:hover{border-color:var(--accent);background:var(--hl);text-decoration:none;}
+.chapnav a.next{margin-left:auto;text-align:right;align-items:flex-end;}
+.chapnav .k{font-size:.72rem;color:var(--muted);}
+.chapnav .t{font-size:.9rem;line-height:1.45;}
+
+/* ---- 顶栏当前章 ---- */
+.bar .cur{flex:1 1 auto;min-width:0;font-size:.8rem;color:var(--muted);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;
+ padding-right:.2rem;}
+@media (max-width:900px){.bar .cur{display:none;}}
+
 #back{position:fixed;right:1.1rem;bottom:1.1rem;background:var(--accent);color:#fff;
  width:2.4rem;height:2.4rem;line-height:2.3rem;text-align:center;border-radius:50%;
  font-size:1rem;box-shadow:0 2px 10px rgba(0,0,0,.2);opacity:0;pointer-events:none;
@@ -108,6 +135,7 @@ img{max-width:100%;height:auto;}
  h2,h3{page-break-after:avoid;}
  pre,table,blockquote{page-break-inside:avoid;}
  .grid{display:none;}
+ .chapnav{display:none;}
 }
 </style>
 </head>
@@ -116,6 +144,7 @@ img{max-width:100%;height:auto;}
 <header class="bar">
   <button id="menu" aria-label="打开目录">☰ 目录</button>
   <a class="brand" href="#top">《AI量化系统工程》</a>
+  <span class="cur" id="cur"></span>
   <button id="theme" aria-label="切换深浅色">◐</button>
 </header>
 <aside class="side" id="toc">
@@ -182,6 +211,7 @@ img{max-width:100%;height:auto;}
 <p><strong>全书只有一个附录。</strong> 附录题为《附录　参考、登记与复现》，内含 <strong>A–H 八个部分</strong>：A 术语与数学、B 数据字典、C 提示词与结构化输出、D 登记模板、E 案例与勘误索引、F 环境与复现、G 材料边界与发布、H 来源与核验。<strong>这八个部分原先分列为八个独立附录，2026-10-09 合并为一册</strong>；合并只改结构、不改编号，各部分的字母标识与三级节编号（<code>§B.6.2</code>、<code>§E.6.3</code> 等）原样保留，因此正文中"附录E §E.6.3"一类的引用<strong>依然指向原位置</strong>，读者不必重新查找。全部案例的身份、引用与失败登记集中在<strong>附录 E 部分</strong>；实验与证据的登记模板集中在<strong>附录 D 部分</strong>。</p>
 <p>同样地，凡是会随时间变化的事实——交易规则、费率、接口版本、行业分类口径、模型名称与价格——本书都保留为待核验状态，不写成"当前如此"。这类事实写死了就会过期，而一本关于工程方法的书，不该被几个会变的数字拖垮。本书因此不承诺提供可以照抄的方案，它想摊开来讲的是：一套真实系统如何被约束、被妥协、被验证，或者被证明暂时无法验证。</p>
 <hr />
+<div class="chapnav"><a class="next" href="#第01章-研究目标系统边界与全书主线"><span class="k">下一章 →</span><span class="t">第01章　研究目标、系统边界与全书主线</span></a></div>
 <h1 id="第01章-研究目标系统边界与全书主线">第01章　研究目标、系统边界与全书主线</h1>
 <p>一个已经建成的量化研究系统，最容易被误解的地方不在技术细节，而在它到底解决了什么问题。旁观者通常先看到功能清单：数据采集、特征计算、回测引擎、风险模型、执行适配器。清单越长，越容易让人以为系统的价值就写在清单上。但功能数量回答的是"系统能做什么"，而不是"系统解决了什么问题"。两者之间的距离，恰好是这本书要填的部分。</p>
 <p>这个距离有多远，可以用一个具体情形说明。假设某家公司获得了某类产品的认证资格。这件事进入系统之前，一个普通投资者能看到的是一条公告和一段新闻；进入系统之后，得到的是一份带证据引用、时点标注、成立条件与反证条件的判断，以及若干需要继续跟踪的观察点。<strong>系统的产出不是"买"或"卖"，而是一份可以被后续事实检验的研究记录。</strong> 这个区别决定了整本书的写法：如果产出是买卖建议，那么评价标准就是赚了多少钱；如果产出是可检验的判断，那么评价标准就包括判断的依据是否充分、时点是否可核查、结论的边界是否明确。</p>
@@ -1715,6 +1745,7 @@ T_exit  实际退出时点（由退出规则决定，可能早于或晚于 T0+W�
 <p>这些定义看起来抽象，但它们的作用很具体：<strong>在后面的每一章里，它们决定了某个结论能不能被写下来、以及要用什么措辞写。</strong> 一个没有运行模式标注的结果、一个跨越了命题类别的断言、一个把设计讨论当成已实现功能的表述，都会在相应章节被拦下。</p>
 <p>下一章讨论系统的总体架构与端到端数据流。本章定义的是"系统解决什么问题、处于什么状态"，下一章要回答的是"这个系统由哪些部分组成、数据如何在其中流动"。两章合起来构成对系统的整体说明，第3章再用一个完整实例把它们串起来。</p>
 <hr />
+<div class="chapnav"><a href="#序章-一套已经完成的-ai-量化系统如何写成一本技术书"><span class="k">← 上一章</span><span class="t">序章　一套已经完成的 AI 量化系统，如何写成一本技术书</span></a><a class="next" href="#第02章-总体架构核心对象与端到端数据流"><span class="k">下一章 →</span><span class="t">第02章　总体架构、核心对象与端到端数据流</span></a></div>
 <h1 id="第02章-总体架构核心对象与端到端数据流">第02章　总体架构、核心对象与端到端数据流</h1>
 <p>第1章说明了系统解决什么问题、处于什么状态。接下来要回答的是"这个系统由哪些部分组成"。这个问题看似是描述性的，但写好它有两个陷阱。</p>
 <p>第一个陷阱是<strong>按目录讲代码</strong>。系统的仓库里有一百个文件，逐个介绍可以写满几十页，读者却依然不知道系统在做什么——因为文件是组织代码的单位，不是组织理解的单位。<strong>读者需要的是领域模型，而不是文件清单。</strong></p>
@@ -3463,6 +3494,7 @@ T6  产出结果可被查询
 <p>这条主线与第1章的四类命题是同一件事的两面。第1章说"什么样的材料支持什么样的结论"，本章说"这些材料在系统里如何被产生与保存"。<strong>没有可追溯的产生与保存机制，第1章要求的证据边界就无法被满足</strong>——无论写作时多么小心，只要底层记录不可追溯，任何结论都无法被复核。</p>
 <p>下一章用一个完整实例把这些结构串起来：从一项产业变化进入系统，经过数据、研究、策略、风控与执行各层，直到账本上的记录。本章给出的是结构，下一章给出的是这个结构在一次真实（或明确标注的教学）流程中的实际运转。</p>
 <hr />
+<div class="chapnav"><a href="#第01章-研究目标系统边界与全书主线"><span class="k">← 上一章</span><span class="t">第01章　研究目标、系统边界与全书主线</span></a><a class="next" href="#第03章-一次真实产业事件的完整处理路径"><span class="k">下一章 →</span><span class="t">第03章　一次真实产业事件的完整处理路径</span></a></div>
 <h1 id="第03章-一次真实产业事件的完整处理路径">第03章　一次真实产业事件的完整处理路径</h1>
 <p>前两章分别定义了系统解决什么问题、以及系统由哪些部分组成。但这两章都停留在结构层面：读者知道有哪些对象、有哪些层、有哪些机制，却还没有看到它们在一次具体的事件处理中如何协同。本章要补上这一环。</p>
 <p>按 v2.1 的设定，本章应当用<strong>一条真实记录</strong>贯穿全书——先让读者看到系统实际怎么工作，再分章解释每个环节的细节。这个设定有一个前提：那条真实记录必须完整可读。<strong>该记录现已取得，编号 C-01，登记于附录E §E.1。</strong></p>
@@ -4620,6 +4652,7 @@ T6  产出结果可被查询
 </ol>
 <p>下一章进入第2篇，讨论数据、公司与事件底座。本章展示的是一条事件的处理路径；要让这条路径可以重复运行，需要先有稳定的数据来源、可靠的公司实体识别、以及可管理的事件结构。第4章从数据来源与治理开始。</p>
 <hr />
+<div class="chapnav"><a href="#第02章-总体架构核心对象与端到端数据流"><span class="k">← 上一章</span><span class="t">第02章　总体架构、核心对象与端到端数据流</span></a><a class="next" href="#第04章-数据来源采集链路与质量治理"><span class="k">下一章 →</span><span class="t">第04章　数据来源、采集链路与质量治理</span></a></div>
 <h1 id="第04章-数据来源采集链路与质量治理">第04章　数据来源、采集链路与质量治理</h1>
 <p>第3章展示了一条事件在系统中的完整处理路径。那条路径的起点是一份原始材料——一份公告、一段行情、一条财务记录。本章要回答的是：<strong>这份材料是怎么进入系统的，以及凭什么认为它是可靠的。</strong></p>
 <p>关于数据，最容易写错的方向是<strong>按供应商清单组织</strong>。写一段"本系统接入了某某数据服务，覆盖行情、财务、公告等若干类数据"，读起来清楚，但没有回答任何有研究意义的问题：这些数据用在研究的哪一环？它们的时间要求是什么？它们在什么情况下会出错？<strong>数据种类多不等于信息增量</strong>——一个只有三类数据但每类都清楚其用途与风险的系统，比一个接入二十类数据却说不清哪一类用于什么的研究基础更可靠。</p>
@@ -5994,6 +6027,7 @@ T6  产出结果可被查询
 <p>本章的结论边界需要再次明确：<strong>质量或时效改善必须来自可比记录。</strong> 本章给出了统计口径与检查方法，但没有给出任何改善结论——因为改善的证明需要前后可比的数据，而这需要实际记录支持。</p>
 <p>下一章讨论历史时点、数据版本与 PIT 工程。本章说明了数据怎么进来；第5章要回答的是：<strong>在某个历史研究时点上，哪些数据是可用的。</strong> 这个问题是前视控制的全部基础——如果系统无法回答"当时能知道什么"，那么任何回测结果都无法被信任。</p>
 <hr />
+<div class="chapnav"><a href="#第03章-一次真实产业事件的完整处理路径"><span class="k">← 上一章</span><span class="t">第03章　一次真实产业事件的完整处理路径</span></a><a class="next" href="#第05章-历史时点数据版本与pit工程"><span class="k">下一章 →</span><span class="t">第05章　历史时点、数据版本与PIT工程</span></a></div>
 <h1 id="第05章-历史时点数据版本与pit工程">第05章　历史时点、数据版本与PIT工程</h1>
 <p>第4章说明了数据怎么进入系统，以及凭什么认为它可靠。但"可靠"只回答了数据对不对，没有回答<strong>在某个历史研究时点，这条数据到底可不可用</strong>。</p>
 <p>这两个问题看起来接近，实际差别很大。一条财务记录可能完全正确——它就是公司最终披露的那个数字——但如果在 2024-04-22 上午的系统里查它，当时能查到的可能只有 100.0，而不是今天看到的 101.0。<strong>数据的正确性与数据的当时可见性是两件事。</strong> 前者是数据质量问题，后者是时点（point-in-time，PIT）工程问题。第4章处理前者，本章处理后者。</p>
@@ -7463,6 +7497,7 @@ assert result is not None or expected_empty            # 空结果必须被显�
 <p>本章反复出现的边界可以归结为一句话：<strong>前视偏差不是因为有人故意用了未来信息，而是因为系统里没有保存"当时能看到什么"。</strong> 保存它是工程成本，不保存它的代价是全部历史结论失去支撑。</p>
 <p>下一章从数据层转向对象层。第5章回答了"一条数据在什么时候可见"，第6章要回答的是<strong>"一个事件关联到哪些公司、凭什么认为存在经营暴露"</strong>——这是从可见信息走向研究对象的下一步，也是从"信息"走向"判断"的第一步。</p>
 <hr />
+<div class="chapnav"><a href="#第04章-数据来源采集链路与质量治理"><span class="k">← 上一章</span><span class="t">第04章　数据来源、采集链路与质量治理</span></a><a class="next" href="#第06章-公司研究产业关系与股票映射"><span class="k">下一章 →</span><span class="t">第06章　公司研究、产业关系与股票映射</span></a></div>
 <h1 id="第06章-公司研究产业关系与股票映射">第06章　公司研究、产业关系与股票映射</h1>
 <p>第5章解决了"一条信息在什么时候可见"。但可见的信息本身不构成研究对象——一条"某厂商获得大额订单"的消息，在进入研究之前必须先回答一个更基本的问题：<strong>这条消息与哪些上市公司存在经营意义上的关系，凭什么这么认为。</strong></p>
 <p>这个问题的难度常被低估。一个看起来可行的做法是：从消息里提取关键词，去概念板块里找名字对得上的公司，生成一份"相关公司名单"。这份名单会很快很长，而且几乎不可用——因为<strong>概念相关不等于经营暴露</strong>。一家公司的经营范围里出现了某个词，不代表它从这个词描述的事情中赚到或亏到任何钱。</p>
@@ -9303,6 +9338,7 @@ assert result is not None or expected_empty            # 空结果必须被显�
 <p>本章反复出现的边界可以归结为：<strong>映射的输出是判断，判断需要标注它的依据与不确定性。</strong> 一个把不确定性抹平成单一分数或单一数值的映射，看起来更整洁，但它把风险转移到了下游——下游会把这些数字当作观测值使用，而它们不是。</p>
 <p>下一章从对象层转向事件层。第6章回答了"这件事与哪些公司有关"，第7章要回答的是<strong>"这件事本身是什么、它与其他事情是什么关系"</strong>——事件如何分类、如何判断两条消息说的是同一件事、以及一件事的生命周期如何随时间演进。</p>
 <hr />
+<div class="chapnav"><a href="#第05章-历史时点数据版本与pit工程"><span class="k">← 上一章</span><span class="t">第05章　历史时点、数据版本与PIT工程</span></a><a class="next" href="#第07章-事件分类去重与生命周期管理"><span class="k">下一章 →</span><span class="t">第07章　事件分类、去重与生命周期管理</span></a></div>
 <h1 id="第07章-事件分类去重与生命周期管理">第07章　事件分类、去重与生命周期管理</h1>
 <p>第3章展示了一条事件从原始材料到后续复核的完整路径。那条路径要走得稳，前提是"事件"这个对象本身是稳定的：同一条消息反复出现时系统不会把它当成多件事，同一件事出现新进展时系统不会漏掉，一条消息被更正时系统不会假装自己从未判断过。</p>
 <p>这三个"不会"分别对应本章的三个主题：<strong>去重、更新识别、生命周期与更正追踪</strong>。它们看起来是数据清洗工作，实际上决定了后续所有研究的样本语义。原因很直接：<strong>样本是由事件构成的。</strong> 如果同一件事被记成三次，那么它在统计上就占了三份权重；如果一次真实的进展被当成重复报道丢掉，那么样本里就少了一个关键状态；如果一条被撤回的消息留下了未被追踪的下游判断，那么这条判断会一直留在记录里，看起来像是从未出过错。</p>
@@ -11034,6 +11070,7 @@ N_obs = 10（一个事件映射到 10 条记录）
 <p>本章还顺带解决了一个跨章术语问题：把「事件」这个概念在本书中的多个用法区分为四个正交维度——对象、系统（生命周期）、产业（阶段）、分类（类型／族）、相关性（簇）。这个区分为第14章构造样本、第17章计算有效样本量提供了统一的词汇基础。</p>
 <p>下一章进入第3篇，讨论大模型在系统中的任务分工。本章处理的是事件的稳定结构；在此之上，系统还需要把非结构化的材料转换成结构化的事件记录，而这一步是模型介入最深的地方。</p>
 <hr />
+<div class="chapnav"><a href="#第06章-公司研究产业关系与股票映射"><span class="k">← 上一章</span><span class="t">第06章　公司研究、产业关系与股票映射</span></a><a class="next" href="#第08章-llm任务分工模型调用与成本控制"><span class="k">下一章 →</span><span class="t">第08章　LLM任务分工、模型调用与成本控制</span></a></div>
 <h1 id="第08章-llm任务分工模型调用与成本控制">第08章　LLM任务分工、模型调用与成本控制</h1>
 <p>第7章把事件对象的身份、状态与相关性结构定义清楚了。但事件不会自己从材料里长出来——一份公告、一篇报道、一段表格，需要被读成结构化的字段，才能进入后续的特征与样本构造。这一步是模型介入最深的地方，也是本章的主题。</p>
 <p>关于"系统如何使用大模型"，最省事的写法是画一张"智能分析层"的框图，然后说模型负责理解与判断。这种写法的问题不在于不准确，而在于它把不同性质的任务混在了一起。<strong>事实抽取、语义分类、经营解释、假说生成是四类不同的任务</strong>：它们的输入不同、允许的推断范围不同、出错时的后果不同、验收标准也不同。用一个"智能分析"概括它们，会让读者无法判断系统在哪一环是可靠的、在哪一环是脆弱的。</p>
@@ -12197,6 +12234,7 @@ N_obs = 10（一个事件映射到 10 条记录）
 <p>这些区分有一个共同的作用：<strong>让模型输出的每一部分都能被追问"它从哪来、谁负责、有多可靠"。</strong> 一个无法被这样追问的输出，在研究中是不可用的——无论它看起来多么合理。</p>
 <p>本章刻意没有评价模型输出的准确性。那是第9章与第13章的工作：第9章处理从原文到可回查事实的机制，第13章处理完整的评测设计。本章只定义了任务、边界与运营条件；<strong>没有这些定义，评测就无从设计</strong>——因为无法知道要评的是哪一类任务、以什么标准评。</p>
 <hr />
+<div class="chapnav"><a href="#第07章-事件分类去重与生命周期管理"><span class="k">← 上一章</span><span class="t">第07章　事件分类、去重与生命周期管理</span></a><a class="next" href="#第09章-结构化抽取证据绑定与事实校验"><span class="k">下一章 →</span><span class="t">第09章　结构化抽取、证据绑定与事实校验</span></a></div>
 <h1 id="第09章-结构化抽取证据绑定与事实校验">第09章　结构化抽取、证据绑定与事实校验</h1>
 <p>第8章定义了模型在系统里承担哪些任务、怎样被调用。其中一个任务是<strong>事实抽取</strong>：从非结构化材料中把关键信息变成结构化字段。本章要展开的正是这个任务——不是"模型能不能抽出来"，而是<strong>抽出来之后，凭什么相信它</strong>。</p>
 <p>这个问题比它看起来更难。一份公告里有主体、动作、金额、日期、状态，模型通常能把这些都抽出来，而且格式完全合法。但格式合法与事实正确是两件事。一个被抽成 <code>{"amount": 1.2}</code> 的字段，可能是对的（1.2 亿元），也可能是错的（1.2 万元，单位丢了），还可能是有歧义的（1.2 是订单额还是年度框架额）。<strong>这三种情况在结构化输出里长得一模一样。</strong></p>
@@ -13795,6 +13833,7 @@ E   AttributeError: 'NoneType' object has no attribute 'preregistration_manifest
 <p>本章的结论边界也需要再次明确：<strong>没有可信标签就不计算准确率。</strong> 这不是保守，而是逻辑要求——"准确率"的分母是标注样本，如果标注本身不可信（来自模型自评、或受后见之明影响），那么算出的数字没有意义。因此本章给出的是校验机制与错误分类，而不是一个准确率数字。</p>
 <p>下一章讨论经营传导、预期差与反证分析。本章的输出是结构化的、带证据的事实字段；第10章要在这些事实之上建立从事件到经营结果的传导判断——这是从"发生了什么"到"这意味着什么"的一步。</p>
 <hr />
+<div class="chapnav"><a href="#第08章-llm任务分工模型调用与成本控制"><span class="k">← 上一章</span><span class="t">第08章　LLM任务分工、模型调用与成本控制</span></a><a class="next" href="#第10章-经营传导预期差与反证分析"><span class="k">下一章 →</span><span class="t">第10章　经营传导、预期差与反证分析</span></a></div>
 <h1 id="第10章-经营传导预期差与反证分析">第10章　经营传导、预期差与反证分析</h1>
 <p>第8章讨论了大模型在系统里承担哪些任务，第9章讨论了怎样把模型输出变成可逐项检查的事实。但一份经过校验的事实清单，本身还不是投资判断。从"某公司通过了某项认证"到"这家公司的经营会因此改变"，中间隔着若干次推导，每一次推导都可能在某个环节断掉。</p>
 <p>本章的任务是把这段推导讲清楚，并给它加上两道约束：<strong>成立条件</strong>与<strong>证伪路径</strong>。前者要求说明判断在什么前提下才成立，后者要求说明什么证据出现时应当放弃这个判断。缺少这两者的分析读起来往往很流畅——产业逻辑环环相扣，结论呼之欲出——但它既不可检验，也不可修正。</p>
@@ -14620,6 +14659,7 @@ E   AttributeError: 'NoneType' object has no attribute 'preregistration_manifest
 <p>因此，本章的输出定位是：<strong>一套可检验的推理结构，加上可观察的后续证据清单。</strong> 它提供的是"接下来该看什么"，而不是"结果会是什么"。这个定位与全书对效果结论的证据要求一致——工程上完成了推理流程，不等于推理结论已被验证。</p>
 <p>从下一章开始，本书的讨论转向方法层面。第11章讨论RAG与Agent的原理与设计取舍，那是一段与现有实现分开的讨论；第12章回到现有系统的真实任务流程。本章建立的经营机制、预期与反证结构，在第11章作为候选设计的参照对象出现，在第14章则被转化为可回测的特征与标签。</p>
 <hr />
+<div class="chapnav"><a href="#第09章-结构化抽取证据绑定与事实校验"><span class="k">← 上一章</span><span class="t">第09章　结构化抽取、证据绑定与事实校验</span></a><a class="next" href="#第11章-rag与agent原理设计取舍与量化系统思考"><span class="k">下一章 →</span><span class="t">第11章　RAG与Agent：原理、设计取舍与量化系统思考</span></a></div>
 <h1 id="第11章-rag与agent原理设计取舍与量化系统思考">第11章　RAG与Agent：原理、设计取舍与量化系统思考</h1>
 <p>本章讨论两个经常被并列提及、却解决不同问题的技术方向：检索增强生成（Retrieval-Augmented Generation，RAG）与智能体（Agent）。在量化研究的语境里，它们被寄予的期待通常可以压缩成一句话——让模型自己去查资料，自己决定下一步。这句话掩盖了两个本可以独立成立的问题：证据怎样进入模型的上下文；下一步由谁决定。本章把这两个问题拆开，分别讨论它们解决什么、在什么条件下值得引入，以及在一套已经完成的量化系统里，哪些位置可能真的需要它们。</p>
 <p>需要先交代本章的性质。本章是方法与设计讨论，不是现有功能报告。本书所讨论的这套量化系统，没有把RAG或本章讨论的新型Agent设计作为对应能力实现，因此本章不包含这类功能的实现说明，也不包含相应的历史实验与效果数据。现有系统在本章中只承担三种角色：提供真实的研究问题、提供可读取的数据接口、提供可作为参照的历史任务。本章出现的流程、接口、状态机和调用序列均属候选设计，凡属设计的内容都会明确标注；本章不会出现"本系统已上线某Agent"或"引入后指标改善若干"这类表述。</p>
@@ -15536,6 +15576,7 @@ E   AttributeError: 'NoneType' object has no attribute 'preregistration_manifest
 <p><strong>未决问题</strong>至少有三个。第一，研究结论的可追溯性要求与动态检索的灵活性之间存在张力，本章没有给出量化这个权衡的方法。第二，反证检索的效果如何度量——是看检索到多少反证材料，还是看这些材料最终改变了多少判断，两种口径的结论可能不同。第三，模型参数记忆对历史研究的污染程度目前无法准确测量，这使得任何基于历史材料的研究都带有未知量。</p>
 <p>本章可以以"不必全面Agent化"收束。RAG与Agent是有明确适用条件的工具，不是研究能力的通用提升手段。对本章讨论的这套量化系统而言，现有固定流程在可审计性与可维护性上有其合理之处；是否引入、引入哪一部分，应当由11.11节的比较结果决定，而不是由技术趋势决定。</p>
 <hr />
+<div class="chapnav"><a href="#第10章-经营传导预期差与反证分析"><span class="k">← 上一章</span><span class="t">第10章　经营传导、预期差与反证分析</span></a><a class="next" href="#第12章-研究工作流工具接口与任务可靠性"><span class="k">下一章 →</span><span class="t">第12章　研究工作流、工具接口与任务可靠性</span></a></div>
 <h1 id="第12章-研究工作流工具接口与任务可靠性">第12章　研究工作流、工具接口与任务可靠性</h1>
 <p>第11章讨论的是 RAG 与 Agent 的原理、设计取舍和量化系统思考。那一章的性质是<strong>设计讨论</strong>：它研究的是"这类方法能解决什么问题、有哪些取舍、如果用在本系统上会怎样"，而不要求这些功能已经实现。</p>
 <p>本章的性质完全不同。<strong>本章写的是现有工程实现。</strong> 它只解释当前系统真实存在的任务组织与运行机制——任务怎么进来、按什么顺序处理、中间结果怎么交接、失败时怎么办、出了问题怎么定位。</p>
@@ -16985,6 +17026,7 @@ E   AttributeError: 'NoneType' object has no attribute 'preregistration_manifest
 <p>第3篇到此结束。第8章处理 LLM 的任务分工与成本，第9章处理结构化抽取与事实校验，第10章处理经营传导与反证，第11章讨论 RAG 与 Agent 的方法与设计，本章说明现有工作流的工程实现。<strong>这五章合起来回答了"LLM 在这个系统里做什么、怎么做、以及做到了什么程度"。</strong></p>
 <p>但"做到了什么程度"这个问题，本章和第8—11章都还没有正面回答——它们说明了机制，没有说明效果。<strong>第13章要处理的正是这个问题</strong>：哪些已有证据能够说明模型帮助了研究，哪些结论仍然不能从结果中推出。这是第3篇的收尾，也是全书对"证据"要求最严格的一章。</p>
 <hr />
+<div class="chapnav"><a href="#第11章-rag与agent原理设计取舍与量化系统思考"><span class="k">← 上一章</span><span class="t">第11章　RAG与Agent：原理、设计取舍与量化系统思考</span></a><a class="next" href="#第13章-llm评测知识泄漏与增量贡献"><span class="k">下一章 →</span><span class="t">第13章　LLM评测、知识泄漏与增量贡献</span></a></div>
 <h1 id="第13章-llm评测知识泄漏与增量贡献">第13章　LLM评测、知识泄漏与增量贡献</h1>
 <p>第8到12章说明了 LLM 在系统里做什么、怎么做。但它们都只说明了机制，没有正面回答一个问题：<strong>它有没有用。</strong></p>
 <p>这个问题看起来简单，实际是全书最难回答的问题之一。原因不在于缺少数字——系统里到处是数字：抽取准确率、判断采纳率、调用次数、费用。原因在于<strong>这些数字大多数不能回答它们被用来回答的问题</strong>。</p>
@@ -18417,6 +18459,7 @@ E   AttributeError: 'NoneType' object has no attribute 'preregistration_manifest
 <p>第3篇到此完整结束。第8—13章合起来回答了"LLM 在这个系统里做什么、怎么做、做到了什么程度"：第8章是分工与成本，第9章是抽取与校验，第10章是经营判断，第11章是方法与设计讨论，第12章是工程实现，本章是评测与证据边界。</p>
 <p>下一章进入第4篇。前面各章处理的都是"信息"——数据、事件、公司、判断。<strong>第14章要处理的是"把信息变成可检验的假说"</strong>：如何从事件出发构造特征、定义标签、组织样本，以及为什么"假说先于数据"这件事决定了后续全部统计结论的有效性。</p>
 <hr />
+<div class="chapnav"><a href="#第12章-研究工作流工具接口与任务可靠性"><span class="k">← 上一章</span><span class="t">第12章　研究工作流、工具接口与任务可靠性</span></a><a class="next" href="#第14章-事件alpha假说特征标签与样本构造"><span class="k">下一章 →</span><span class="t">第14章　事件Alpha：假说、特征、标签与样本构造</span></a></div>
 <h1 id="第14章-事件alpha假说特征标签与样本构造">第14章　事件Alpha：假说、特征、标签与样本构造</h1>
 <p>第10章把产业事件推进到了经营变量、成立条件与可观察的证伪路径。但一份经营假说无论写得多严谨，只要它还停留在文字层面，就无法被回测、无法被比较，也无法被证伪。把假说变成可计算对象，需要完成四项转换：把机制陈述转成可观测关系，把事件与公司转成样本，把判断依据转成特征，把预期结果转成标签。</p>
 <p>这四项转换中的每一项都会引入新的自由度，而自由度正是研究结论不可复现的主要来源。同一个经营假说，用不同的样本纳入规则、不同的特征计算口径、不同的标签起点，会得到不同的结果——这不是方法论的细节差异，而是研究结论本身的一部分。因此本章的重点不在于给出"正确"的转换方式，而在于<strong>让每一项转换的口径被显式声明，从而使结论可被他人复现或反驳</strong>。</p>
@@ -19400,6 +19443,7 @@ T3+h ── 标签终点
 <p>本章的特别结论边界也需要重申：<strong>研究窗口不替代调仓周期；历史结果不足时写方法与已知边界，不补造有效性。</strong> 本章没有给出任何事件策略的有效性结论，这是本章性质决定的，不是材料缺口的产物。</p>
 <p>下一章讨论多因子研究、风险基线与EQ-MF的独立评价。它与本章的关系是：本章处理的是单个事件类假说如何变成研究对象，下一章处理的是在同一工程底座上，风险因子与预测因子的分工，以及独立研究线如何被分别核算。</p>
 <hr />
+<div class="chapnav"><a href="#第13章-llm评测知识泄漏与增量贡献"><span class="k">← 上一章</span><span class="t">第13章　LLM评测、知识泄漏与增量贡献</span></a><a class="next" href="#第15章-多因子研究风险基线与eq-mf的独立评价"><span class="k">下一章 →</span><span class="t">第15章　多因子研究、风险基线与EQ-MF的独立评价</span></a></div>
 <h1 id="第15章-多因子研究风险基线与eq-mf的独立评价">第15章　多因子研究、风险基线与EQ-MF的独立评价</h1>
 <p>第14章把产业假说变成了可回测的对象。但事件研究只是研究线之一。在同一套工程底座上，还存在另一类研究：用一组可横截面比较的特征来解释收益的共同来源，并尝试预测收益的横截面差异。这类研究通常被称为多因子研究。</p>
 <p>把它与事件研究放在一起讨论，容易产生三种混淆。第一种是<strong>把风险解释当成收益预测</strong>：一个因子能解释组合收益的共同波动，并不说明它能预测未来收益。第二种是<strong>把风控动作当成投资动作</strong>：风险中性化的目的是消除暴露，而多因子配置的目的是利用暴露，两者方向相反。第三种是<strong>把两条研究线的结果直接合并</strong>：两条净值相加既不是组合收益，也不能说明分散效果。</p>
@@ -20509,6 +20553,7 @@ T3+h ── 标签终点
 <p>本章提供的是因子层面的角色区分、构造规范与独立核算边界。它的核心贡献不在于介绍因子，而在于把三件事分开：风险解释与收益预测、风控动作与投资动作、独立核算与结果合并。这三处区分如果被混淆，会让读者对系统的实际能力产生系统性高估。</p>
 <p>下一章讨论回测引擎、交易约束与成本建模。本章讨论的因子最终都要经过引擎才能产生结果，而引擎的每一处假设都会进入这些结果。因子层面的规范与引擎层面的假设，共同决定了多因子研究结论的可信度。</p>
 <hr />
+<div class="chapnav"><a href="#第14章-事件alpha假说特征标签与样本构造"><span class="k">← 上一章</span><span class="t">第14章　事件Alpha：假说、特征、标签与样本构造</span></a><a class="next" href="#第16章-回测引擎交易约束与成本建模"><span class="k">下一章 →</span><span class="t">第16章　回测引擎、交易约束与成本建模</span></a></div>
 <h1 id="第16章-回测引擎交易约束与成本建模">第16章　回测引擎、交易约束与成本建模</h1>
 <p>第14章把产业假说变成了特征、标签与样本，第15章将讨论因子与风险基线。这些研究对象最终都要交给同一件东西去跑：回测引擎。引擎决定了研究结论以什么形式落地——标签收益如何对应到成交、成本如何进入净值、约束如何改变实际持仓。</p>
 <p>回测引擎的地位容易被两种态度扭曲。一种是轻视它，把它当作"跑数工具"，认为研究结论的好坏取决于策略想法；另一种是过度信任它，把引擎跑通、净值曲线平滑当作策略可靠的证明。两种态度都忽略了一件事：<strong>引擎的每一处简化都是一个关于市场的假设，而这些假设的系统性偏差会直接进入结果。</strong> 一个把信号与成交安排在同一收盘价的引擎，会让任何策略都获得一个不存在的优势；一个漏算营运资金约束的引擎，会让高换手策略看起来比实际可行。</p>
@@ -21536,6 +21581,7 @@ T3+h ── 标签终点
 <p>本章提供的是回测引擎的机制说明与核验方法，不是任何策略的结果。引擎的每一处假设都会影响结论，因此本章的写法是把假设显式化：时间顺序（16.2）、规则简化（16.3）、价格口径（16.4）、成本性质（16.5）、成交假设（16.6）——每一处都给出了"如何检查"而不仅是"应当如何"。</p>
 <p>下一章讨论样本外验证、研究选择与统计不确定性。它与本章的关系可以用一句话概括：<strong>本章处理"算得对不对"，下一章处理"结果可不可信"。</strong> 一个通过全部明细核验的结果，仍然可能因为选择偏差而不可信；两者需要分别检验。</p>
 <hr />
+<div class="chapnav"><a href="#第15章-多因子研究风险基线与eq-mf的独立评价"><span class="k">← 上一章</span><span class="t">第15章　多因子研究、风险基线与EQ-MF的独立评价</span></a><a class="next" href="#第17章-样本外验证研究选择与统计不确定性"><span class="k">下一章 →</span><span class="t">第17章　样本外验证、研究选择与统计不确定性</span></a></div>
 <h1 id="第17章-样本外验证研究选择与统计不确定性">第17章　样本外验证、研究选择与统计不确定性</h1>
 <p>第14章把产业假说变成了可回测对象，并在过程中埋下若干风险点：样本之间可能不独立、排除规则可能事后设定、状态分组可能事后挑选、标签区间可能重叠。第16章介绍了引擎如何把这些对象跑出结果。但一个结果是否可信，并不取决于它跑得对不对，而取决于<strong>它是从多少次尝试中被选出来的</strong>。</p>
 <p>这一区分是本章的全部起点。一个年化超额收益 12% 的回测结果，如果来自唯一一次预先指定的检验，它值得认真对待；如果它来自两百次参数搜索中被挑出的最好一次，那么它几乎不携带信息——因为即使真实效应为零，两百次独立检验中的最优值也会呈现出令人信服的表现。两者的数字可能完全相同，可信度却相差极大。</p>
@@ -22416,6 +22462,7 @@ pending 的原因码：
 <p>这段修正没有删除任何研究产出：机制、方向、幅度、区间都被保留，只是把"稳定"这个未经检验的形容词换成了具体的限制条件。<strong>保留结论的内容，下调结论的强度</strong>，这是把第17章的全部内容落到写作层面的最终形式。</p>
 <p>下一章讨论收益归因、稳健性与策略容量。它与本章的关系是：本章处理"结果可信到什么程度"，下一章处理"结果来自哪里、对规模有多敏感"。两者共同构成对历史结果的完整交代——一个说明精度，一个说明来源。</p>
 <hr />
+<div class="chapnav"><a href="#第16章-回测引擎交易约束与成本建模"><span class="k">← 上一章</span><span class="t">第16章　回测引擎、交易约束与成本建模</span></a><a class="next" href="#第18章-收益归因稳健性与策略容量"><span class="k">下一章 →</span><span class="t">第18章　收益归因、稳健性与策略容量</span></a></div>
 <h1 id="第18章-收益归因稳健性与策略容量">第18章　收益归因、稳健性与策略容量</h1>
 <p>前面四章建立了一条从假说到验证的完整链路：第14章把产业判断变成可回测的对象，第15章把多因子研究线的角色与边界分开，第16章规定了引擎、交易约束与成本的实现方式，第17章处理样本外验证与研究选择带来的统计不确定性。走完这条链路，研究者手里会有一批结果。本章要回答的是关于这批结果的三个问题：<strong>它从哪里来、它对成本有多敏感、它能承载多少钱。</strong></p>
 <p>这三个问题看似是收尾工作，实际上决定了结果的可用范围。一个策略的历史净值再漂亮，如果收益全部来自两笔交易，或者扣掉真实成本后归零，或者只在一百万的规模上成立，那么它的价值与一个分散、成本后仍然有利、且在小规模上稳定成立的策略完全不同——而这两种情况在只看净值曲线的报告中长得一模一样。</p>
@@ -24242,6 +24289,7 @@ k 为待标定系数，单位与 c 相同。
 <p>这套规范的作用不是让结果看起来更好，而是让结果的适用范围变得明确。一个在明确口径下、经过分解、标注了成本与容量边界的结果，即使数值不高，也比一个口径含糊、来源集中、成本与规模未评估的结果更有价值——因为前者的结论可以被检验，后者的结论只能被相信。</p>
 <p>第4篇到此结束。这五章处理的都是研究层面：假说、构造、验证与评价。但研究结论要变成实际的持仓，中间还隔着一层——信号如何被接受、观察、拒绝或撤销，判断如何变成订单，订单如何变成账本上的记录。第5篇的三章处理的正是这一层。第19章从信号处置开始：一个研究输出在成为组合候选之前，需要经过哪些判断，以及那些没有被采纳的信号去了哪里。</p>
 <hr />
+<div class="chapnav"><a href="#第17章-样本外验证研究选择与统计不确定性"><span class="k">← 上一章</span><span class="t">第17章　样本外验证、研究选择与统计不确定性</span></a><a class="next" href="#第19章-信号处置从研究输出到组合候选"><span class="k">下一章 →</span><span class="t">第19章　信号处置：从研究输出到组合候选</span></a></div>
 <h1 id="第19章-信号处置从研究输出到组合候选">第19章　信号处置：从研究输出到组合候选</h1>
 <p>第18章结束于归因与容量——它回答的是"已经发生的事情该怎么解释、能承载多少资金"。本章处理的是反方向的流程：<strong>一次研究判断，如何变成一个可以被组合层接受的候选。</strong></p>
 <p>这个流程的关键词是"处置"（disposition）。处置的含义是：<strong>每一条研究输出都必须得到一个明确的状态，而且这个状态必须有依据。</strong> 它可以是接受，可以是观察，可以是拒绝，也可以是被更新或撤销。<strong>唯一不被允许的状态是"悬置"——一条输出既没有被接受，也没有被拒绝，而是留在某处等待。</strong></p>
@@ -25749,6 +25797,7 @@ k 为待标定系数，单位与 c 相同。
 <p>本章反复出现的边界可以归结为：<strong>处置层的价值在于记录，而不在于行动。</strong> 一个记录完整的处置层，即使在很长一段时间里没有接受任何信号，也是有效的——因为它使得"为什么没有行动"这个问题可以被回答。而一个记录不完整的处置层，即便行动频繁，也无法回答任何关于其有效性的问题。</p>
 <p>下一章进入组合层。本章交给第20章的是一个<strong>带方向、强度标注、数据时点与有效期的候选集合</strong>；第20章要回答的是<strong>在这个集合上施加风险预算与约束之后，应该持有多少</strong>——这是从"要不要"到"要多少"的跨越，也是从判断走向资本配置的跨越。</p>
 <hr />
+<div class="chapnav"><a href="#第18章-收益归因稳健性与策略容量"><span class="k">← 上一章</span><span class="t">第18章　收益归因、稳健性与策略容量</span></a><a class="next" href="#第20章-组合构建风险预算与资本配置"><span class="k">下一章 →</span><span class="t">第20章　组合构建、风险预算与资本配置</span></a></div>
 <h1 id="第20章-组合构建风险预算与资本配置">第20章　组合构建、风险预算与资本配置</h1>
 <p>第19章结束时，系统手里有一份候选清单：带方向、带强度标注、带数据时点与有效期。清单上的每一项都通过了准入检查，每一项都值得被考虑。</p>
 <p>但"值得考虑"和"应该持有多少"是两个问题。一个候选可能值得考虑，但因为容量太小而只能给很小的权重；另一个候选可能强度更高，但因为它与已有持仓高度相关而必须被削减；还有一个候选可能完全合格，但组合已经没有可用资金——此时唯一正确的动作是<strong>不买</strong>。</p>
@@ -27113,6 +27162,7 @@ k 为待标定系数，单位与 c 相同。
 <p>本章反复出现的边界可以归结为：<strong>组合构建的输出是目标，不是效果。</strong> 一个约束完备、口径统一的目标组合，说明系统知道"应该持有什么"；它不说明这个组合会表现得更好。<strong>效果需要统一资本与成本口径下的可比记录，而那是另一件事。</strong></p>
 <p>第21章把本章的目标持仓连接到实际存在的记录。本章结束时系统知道"应该持有什么"，第21章要回答的是<strong>"这些目标是否真的被交易、交易的结果如何进入账本、以及内部记录与外部记录是否一致"</strong>——这是从意图走向事实的最后一跳，也是全书对"证据"要求最严格的一章。</p>
 <hr />
+<div class="chapnav"><a href="#第19章-信号处置从研究输出到组合候选"><span class="k">← 上一章</span><span class="t">第19章　信号处置：从研究输出到组合候选</span></a><a class="next" href="#第21章-执行接口订单生命周期与账本对账"><span class="k">下一章 →</span><span class="t">第21章　执行接口、订单生命周期与账本对账</span></a></div>
 <h1 id="第21章-执行接口订单生命周期与账本对账">第21章　执行接口、订单生命周期与账本对账</h1>
 <p>第20章结束时，系统知道应该持有什么：一份目标持仓。但目标不是事实。目标可能因为没有资金而未完全实现，可能因为部分成交而只实现了一部分，也可能因为撤单而完全没有实现。</p>
 <p>本章的中心问题是：<strong>把系统输出与实际存在的模拟或交易记录连接起来，核对资产变化。</strong></p>
@@ -28950,6 +29000,7 @@ k 为待标定系数，单位与 c 相同。
 <p>本章反复出现的边界可以归结为：<strong>模拟与真实必须始终分开，内部一致不等于外部核验。</strong> 一条记录的价值不仅取决于它的数值，还取决于它来自哪种运行模式、经过哪个层次的对账。<strong>一个没有标签的精确数字，其证据价值低于一个有标签的近似数字。</strong></p>
 <p>本章是第5篇的收尾。第5篇从信号处置（第19章）到组合构建（第20章）再到执行与账本（本章），完成了"从研究判断到实际记录"的完整链路。第6篇转向系统的运行与演进：第22章处理真实前向记录与持续迭代——本章反复引用的"前向记录完整性"，将在那里展开为完整的论证；第23章处理可观测性与故障诊断；第24章处理系统演进与实战复盘。</p>
 <hr />
+<div class="chapnav"><a href="#第20章-组合构建风险预算与资本配置"><span class="k">← 上一章</span><span class="t">第20章　组合构建、风险预算与资本配置</span></a><a class="next" href="#第22章-真实前向记录与持续迭代"><span class="k">下一章 →</span><span class="t">第22章　真实前向记录与持续迭代</span></a></div>
 <h1 id="第22章-真实前向记录与持续迭代">第22章　真实前向记录与持续迭代</h1>
 <p>第13章区分了三类证据，并指出只有前向记录能支撑"系统在当时具备某种能力"这一类结论。但它没有展开前向记录本身——什么算前向记录、它需要保存什么、以及当系统在记录期内不断变化时，这些记录还能回答什么。</p>
 <p>本章处理的就是这个问题。</p>
@@ -30825,6 +30876,7 @@ k 为待标定系数，单位与 c 相同。
 <p>本章反复出现的边界可以归结为：<strong>前向记录的结论范围由材料范围决定，不由期望范围决定。</strong> 一份包含三个版本、两个模式切换、若干缺失区间的记录，能支撑的结论比一份"干净"的记录窄——但前者是可以被检验的，后者不是。</p>
 <p>第23章从记录转向运行。本章说明了"记录了什么、能支撑什么结论"；第23章要回答的是<strong>"系统在运行时如何被发现异常、定位原因、并恢复"</strong>——前者是事后证据的完整性，后者是运行期的可观测性，两者共同构成了第6篇对"系统实际如何运转"的完整交代。</p>
 <hr />
+<div class="chapnav"><a href="#第21章-执行接口订单生命周期与账本对账"><span class="k">← 上一章</span><span class="t">第21章　执行接口、订单生命周期与账本对账</span></a><a class="next" href="#第23章-系统运行可观测性与故障诊断"><span class="k">下一章 →</span><span class="t">第23章　系统运行、可观测性与故障诊断</span></a></div>
 <h1 id="第23章-系统运行可观测性与故障诊断">第23章　系统运行、可观测性与故障诊断</h1>
 <p>第22章说明了前向记录的完整性——哪些记录存在、能支撑什么结论。但记录的存在性依赖一个前提：<strong>系统在运行，而且它的运行状态是可被观察的。</strong> 一个静默停摆三天的系统，其前向记录会出现三天的缺口（第22章章首边界二），而如果没有任何机制发现这个停摆，缺口会在事后才被发现。</p>
 <p>本章处理的就是这个前提：<strong>系统在运行时，如何知道它是正常的、不正常的是哪里、以及怎么恢复。</strong></p>
@@ -32725,6 +32777,7 @@ k 为待标定系数，单位与 c 相同。
 <p>本章反复出现的边界可以归结为：<strong>本章描述的是观测能力，不是能力保证。</strong> 一个没有监控指标的方面不等于系统没有该功能；一段没有中断的运行历史不等于可用性承诺；一次隔离环境的演练不等于真实故障的验证。<strong>把观察读成保证，是本章最需要防止的一类误读。</strong></p>
 <p>第24章是全书的最后一章，它从运行转向演进：本章处理的是"系统现在怎么运转"，第24章要回答的是<strong>"系统是怎么变成现在这样的"</strong>——版本演进、架构取舍、缺陷修复、以及哪些经验可以迁移到其他系统。</p>
 <hr />
+<div class="chapnav"><a href="#第22章-真实前向记录与持续迭代"><span class="k">← 上一章</span><span class="t">第22章　真实前向记录与持续迭代</span></a><a class="next" href="#第24章-系统演进ai辅助开发与实战复盘"><span class="k">下一章 →</span><span class="t">第24章　系统演进、AI辅助开发与实战复盘</span></a></div>
 <h1 id="第24章-系统演进ai辅助开发与实战复盘">第24章　系统演进、AI辅助开发与实战复盘</h1>
 <p>第23章处理的是系统当前的运行状态。本章处理的是<strong>系统是怎么变成现在这样的</strong>。</p>
 <p>这个问题的性质与前面各章都不同。前面各章的对象是<strong>系统</strong>——它的架构、数据、模型、研究、组合、运行；本章的对象是<strong>开发过程</strong>——决策、取舍、缺陷、修复、以及这些变化留下的痕迹。</p>
@@ -34818,6 +34871,7 @@ k 为待标定系数，单位与 c 相同。
 <p><strong>第三行需要与附录G 一起读。</strong> 本书公开的是方法、机制与记录规范；系统的完整实现、原始数据与生产配置不在公开范围内（第11章 11.x、附录G）。</p>
 <p><strong>第四行是本节的落点。</strong> 全书从"一套已经完成的系统"出发，说明它怎么工作、怎么被验证、以及哪些结论不能从现有证据推出。<strong>它是一份关于已完成系统的技术记录，不是一份开发计划。</strong> 把结尾写成路线图，会让读者误以为系统的现状只是某个更长过程的开端——而实际上，本书描述的是一个已经运行、已经产出记录、并且其记录边界已经被清楚标定的系统。</p>
 <hr />
+<div class="chapnav"><a href="#第23章-系统运行可观测性与故障诊断"><span class="k">← 上一章</span><span class="t">第23章　系统运行、可观测性与故障诊断</span></a><a class="next" href="#附录-参考登记与复现"><span class="k">下一章 →</span><span class="t">附录　参考、登记与复现</span></a></div>
 <h1 id="附录-参考登记与复现">附录　参考、登记与复现</h1>
 <p><strong>本附录是全书唯一的附录</strong>，由八个部分组成。它们原分列为八个独立附录，现合并为一册。合并的两条理由：一是八个部分共用同一套阅读约定（待填卡格式、null 规则），分列会把同一套约定重复八遍；二是其中若干处内容互相覆盖（见编辑附记「结构变更留痕」）。</p>
 <p><strong>合并只改结构，不改编号。</strong> 各部分的字母标识（A–H）与三级节编号（如 <code>§B.6.2</code>、<code>§E.6.3</code>）全部原样保留，因此正文各章对附录的引用不受影响。</p>
@@ -39825,6 +39879,8 @@ MWR   = 求解 -1,000,000 - 500,000/(1+i) + 1,680,000/(1+i)² = 0  →  i ≈ 7.
 </ul>
 <p><strong>为什么不能含糊处理。</strong> 因为读者会把书中的时效性断言当作当前事实。一本 2026 年出版的书说"当前费率为 X"，读者在 2028 年读到时会直接采信——若届时费率已变，这个断言就成了错误信息。显式标注核验日期，是让读者自行判断时效的唯一办法。</p>
 <p><strong>易变事实与全书结论的关系。</strong> 本书的结论尽量不建立在易变事实上：机制、取舍、方法这类内容不随价格与接口变化。凡涉及易变事实的地方，通常是举例或口径说明。因此即使某个易变事实过期，也不应动摇本书的核心结论——<strong>若某条结论确实依赖于一个易变事实，那这条结论本身就应当在正文中降级。</strong></p>
+<div class="chapnav"><a href="#第24章-系统演进ai辅助开发与实战复盘"><span class="k">← 上一章</span><span class="t">第24章　系统演进、AI辅助开发与实战复盘</span></a></div>
+
 </main>
 <a id="back" href="#top" title="回到顶部" aria-label="回到顶部">↑</a>
 <script>
@@ -39832,11 +39888,40 @@ MWR   = 求解 -1,000,000 - 500,000/(1+i) + 1,680,000/(1+i)² = 0  →  i ≈ 7.
   var root=document.documentElement,prog=document.getElementById('prog'),
       back=document.getElementById('back'),side=document.getElementById('toc'),
       scrim=document.getElementById('scrim'),menu=document.getElementById('menu'),
-      q=document.getElementById('q'),
+      q=document.getElementById('q'),nav=document.querySelector('.tocnav'),
+      curEl=document.getElementById('cur'),
       links=[].slice.call(document.querySelectorAll('.tocnav a')),
       heads=[].slice.call(document.querySelectorAll('.wrap h1[id],.wrap h2[id]')),
-      byId={},ticking=false;
+      tops=[].slice.call(document.querySelectorAll('.tocnav>ul>li')),
+      lis=[].slice.call(document.querySelectorAll('.tocnav li')),
+      byId={},ticking=false,lastTop=null,lastOn=null;
   links.forEach(function(a){var k=a.getAttribute('href').slice(1);if(!byId[k])byId[k]=a;});
+
+  // 折叠：只展开当前章
+  function setColl(li,c){
+    li.classList.toggle('collapsed',c);
+    var b=li.querySelector('.caret');
+    if(b)b.setAttribute('aria-expanded',c?'false':'true');
+  }
+  tops.forEach(function(li){
+    if(!li.querySelector('ul'))return;
+    var b=document.createElement('button');
+    b.className='caret';b.type='button';b.textContent='▸';
+    b.setAttribute('aria-label','展开或收起本章');
+    b.setAttribute('aria-expanded','false');
+    li.insertBefore(b,li.firstChild);
+    b.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      setColl(li,!li.classList.contains('collapsed'));
+    });
+    setColl(li,true);
+  });
+
+  function topOf(a){return a.closest('.tocnav>ul>li');}
+  function reveal(a){
+    var r=a.getBoundingClientRect(),s=nav.getBoundingClientRect();
+    if(r.top<s.top+12||r.bottom>s.bottom-12)nav.scrollTop+=(r.top-s.top)-s.height*0.4;
+  }
 
   var saved=null;
   try{saved=localStorage.getItem('aq-theme');}catch(e){}
@@ -39858,11 +39943,14 @@ MWR   = 求解 -1,000,000 - 500,000/(1+i) + 1,680,000/(1+i)² = 0  →  i ≈ 7.
     a.addEventListener('click',function(){if(innerWidth<=960)close();});
   });
 
-  var lis=[].slice.call(document.querySelectorAll('.tocnav li'));
   q.addEventListener('input',function(){
     var v=q.value.trim().toLowerCase();
     lis.forEach(function(li){li.classList.remove('hide');});
-    if(!v)return;
+    if(!v){
+      tops.forEach(function(li){setColl(li,li!==lastTop);});
+      return;
+    }
+    tops.forEach(function(li){setColl(li,false);});
     lis.forEach(function(li){
       var own=li.querySelector('a'),kid=li.querySelector('ul');
       var hit=own&&own.textContent.toLowerCase().indexOf(v)>=0;
@@ -39880,9 +39968,25 @@ MWR   = 求解 -1,000,000 - 500,000/(1+i) + 1,680,000/(1+i)² = 0  →  i ≈ 7.
     for(var i=0;i<heads.length;i++){
       if(heads[i].getBoundingClientRect().top<=132)cur=heads[i];else break;
     }
-    if(cur&&byId[cur.id]){
-      links.forEach(function(a){a.classList.remove('on');});
-      byId[cur.id].classList.add('on');
+    var a=cur?byId[cur.id]:null;
+    if(!a){
+      if(lastOn){links.forEach(function(x){x.classList.remove('on');});lastOn=null;curEl.textContent='';}
+      ticking=false;return;
+    }
+    if(a!==lastOn){
+      links.forEach(function(x){x.classList.remove('on');});
+      a.classList.add('on');lastOn=a;
+      var t=topOf(a);
+      if(t){
+        var searching=q.value.trim();
+        if(t!==lastTop&&!searching){
+          lastTop=t;
+          tops.forEach(function(li){setColl(li,li!==t);});
+        }
+        var ca=t.querySelector('a');
+        curEl.textContent=ca?ca.textContent.replace(/\s+/g,' ').trim():'';
+        if(!searching)reveal(a);
+      }
     }
     ticking=false;
   }

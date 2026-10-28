@@ -147,8 +147,8 @@ body{margin:0;padding-left:19.5rem;background:var(--bg);color:var(--fg);
 .bar{position:fixed;top:0;left:0;right:0;height:3.1rem;display:flex;align-items:center;gap:.6rem;
  padding:0 1rem;background:rgba(var(--bar),.92);backdrop-filter:blur(8px);
  border-bottom:1px solid var(--line);z-index:50;}
-.bar .brand{flex:1;font-size:.9rem;font-weight:600;color:var(--fg);text-decoration:none;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar .brand{flex:0 1 auto;min-width:0;font-size:.9rem;font-weight:600;color:var(--fg);
+ text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bar button{border:1px solid var(--line);background:transparent;color:var(--fg);
  border-radius:6px;padding:.3rem .55rem;font-size:.85rem;cursor:pointer;line-height:1.2;}
 .bar button:hover{background:var(--soft);}
@@ -207,6 +207,33 @@ img{max-width:100%;height:auto;}
  font-variant-numeric:tabular-nums;}
 .grid .tt{font-size:.9rem;line-height:1.45;}
 
+/* ---- 侧栏折叠 ---- */
+.tocnav>ul>li{position:relative;}
+.tocnav>ul>li>a{padding-right:1.5rem;}
+.tocnav li.collapsed>ul{display:none;}
+.tocnav .caret{position:absolute;right:-.1rem;top:.28rem;width:1.3rem;height:1.3rem;
+ border:0;background:none;color:var(--muted);cursor:pointer;padding:0;font-size:.72rem;
+ line-height:1.3rem;border-radius:4px;transition:transform .15s;}
+.tocnav .caret:hover{background:var(--soft);color:var(--fg);}
+.tocnav li:not(.collapsed)>.caret{transform:rotate(90deg);}
+
+/* ---- 章末翻页 ---- */
+.chapnav{display:flex;justify-content:space-between;gap:.8rem;margin:3.4rem 0 .5rem;
+ padding-top:1.3rem;border-top:1px solid var(--line);}
+.chapnav a{display:flex;flex-direction:column;gap:.15rem;max-width:48%;
+ padding:.65rem .9rem;border:1px solid var(--line);border-radius:8px;
+ color:var(--fg);text-decoration:none;}
+.chapnav a:hover{border-color:var(--accent);background:var(--hl);text-decoration:none;}
+.chapnav a.next{margin-left:auto;text-align:right;align-items:flex-end;}
+.chapnav .k{font-size:.72rem;color:var(--muted);}
+.chapnav .t{font-size:.9rem;line-height:1.45;}
+
+/* ---- 顶栏当前章 ---- */
+.bar .cur{flex:1 1 auto;min-width:0;font-size:.8rem;color:var(--muted);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;
+ padding-right:.2rem;}
+@media (max-width:900px){.bar .cur{display:none;}}
+
 #back{position:fixed;right:1.1rem;bottom:1.1rem;background:var(--accent);color:#fff;
  width:2.4rem;height:2.4rem;line-height:2.3rem;text-align:center;border-radius:50%;
  font-size:1rem;box-shadow:0 2px 10px rgba(0,0,0,.2);opacity:0;pointer-events:none;
@@ -233,6 +260,7 @@ img{max-width:100%;height:auto;}
  h2,h3{page-break-after:avoid;}
  pre,table,blockquote{page-break-inside:avoid;}
  .grid{display:none;}
+ .chapnav{display:none;}
 }
 """
 
@@ -357,6 +385,29 @@ def main():
     body_html = body_html.replace(
         ph, '<div class="grid">' + ''.join(card(h, t) for h, t in h1s) + '</div>')
 
+    # 章末翻页：每个章级部分的结尾放「上一章 / 下一章」。
+    # 插在下一章 <h1> 之前 = 本章结尾，所以第 j 个 h1 前的块属于第 j-1 章。
+    def chapnav(prev, nxt):
+        out = '<div class="chapnav">'
+        if prev:
+            out += (f'<a href="#{prev[0]}"><span class="k">← 上一章</span>'
+                    f'<span class="t">{html.escape(prev[1])}</span></a>')
+        if nxt:
+            out += (f'<a class="next" href="#{nxt[0]}"><span class="k">下一章 →</span>'
+                    f'<span class="t">{html.escape(nxt[1])}</span></a>')
+        return out + '</div>\n'
+
+    order = {h: i for i, (h, _t) in enumerate(h1s)}
+    marks = [(m.start(), order[m.group(1)])
+             for m in re.finditer(r'<h1 id="([^"]+)">', body_html)
+             if m.group(1) in order]
+    assert len(marks) == len(h1s) == 26, f'章级标题定位失败：{len(marks)} / {len(h1s)}'
+    for pos, i in reversed(marks[1:]):
+        body_html = (body_html[:pos]
+                     + chapnav(h1s[i - 2] if i >= 2 else None, h1s[i])
+                     + body_html[pos:])
+    body_html = body_html.rstrip() + '\n' + chapnav(h1s[-2], None)
+
     # Mermaid → <pre class="mermaid">
     body_html = re.sub(
         r'<pre><code class="language-mermaid">(.*?)</code></pre>',
@@ -380,6 +431,7 @@ def main():
 <header class="bar">
   <button id="menu" aria-label="打开目录">☰ 目录</button>
   <a class="brand" href="#top">《{BOOK_TITLE}》</a>
+  <span class="cur" id="cur"></span>
   <button id="theme" aria-label="切换深浅色">◐</button>
 </header>
 <aside class="side" id="toc">
@@ -397,11 +449,40 @@ def main():
   var root=document.documentElement,prog=document.getElementById('prog'),
       back=document.getElementById('back'),side=document.getElementById('toc'),
       scrim=document.getElementById('scrim'),menu=document.getElementById('menu'),
-      q=document.getElementById('q'),
+      q=document.getElementById('q'),nav=document.querySelector('.tocnav'),
+      curEl=document.getElementById('cur'),
       links=[].slice.call(document.querySelectorAll('.tocnav a')),
       heads=[].slice.call(document.querySelectorAll('.wrap h1[id],.wrap h2[id]')),
-      byId={{}},ticking=false;
+      tops=[].slice.call(document.querySelectorAll('.tocnav>ul>li')),
+      lis=[].slice.call(document.querySelectorAll('.tocnav li')),
+      byId={{}},ticking=false,lastTop=null,lastOn=null;
   links.forEach(function(a){{var k=a.getAttribute('href').slice(1);if(!byId[k])byId[k]=a;}});
+
+  // 折叠：只展开当前章
+  function setColl(li,c){{
+    li.classList.toggle('collapsed',c);
+    var b=li.querySelector('.caret');
+    if(b)b.setAttribute('aria-expanded',c?'false':'true');
+  }}
+  tops.forEach(function(li){{
+    if(!li.querySelector('ul'))return;
+    var b=document.createElement('button');
+    b.className='caret';b.type='button';b.textContent='▸';
+    b.setAttribute('aria-label','展开或收起本章');
+    b.setAttribute('aria-expanded','false');
+    li.insertBefore(b,li.firstChild);
+    b.addEventListener('click',function(e){{
+      e.preventDefault();e.stopPropagation();
+      setColl(li,!li.classList.contains('collapsed'));
+    }});
+    setColl(li,true);
+  }});
+
+  function topOf(a){{return a.closest('.tocnav>ul>li');}}
+  function reveal(a){{
+    var r=a.getBoundingClientRect(),s=nav.getBoundingClientRect();
+    if(r.top<s.top+12||r.bottom>s.bottom-12)nav.scrollTop+=(r.top-s.top)-s.height*0.4;
+  }}
 
   var saved=null;
   try{{saved=localStorage.getItem('aq-theme');}}catch(e){{}}
@@ -423,11 +504,14 @@ def main():
     a.addEventListener('click',function(){{if(innerWidth<=960)close();}});
   }});
 
-  var lis=[].slice.call(document.querySelectorAll('.tocnav li'));
   q.addEventListener('input',function(){{
     var v=q.value.trim().toLowerCase();
     lis.forEach(function(li){{li.classList.remove('hide');}});
-    if(!v)return;
+    if(!v){{
+      tops.forEach(function(li){{setColl(li,li!==lastTop);}});
+      return;
+    }}
+    tops.forEach(function(li){{setColl(li,false);}});
     lis.forEach(function(li){{
       var own=li.querySelector('a'),kid=li.querySelector('ul');
       var hit=own&&own.textContent.toLowerCase().indexOf(v)>=0;
@@ -445,9 +529,25 @@ def main():
     for(var i=0;i<heads.length;i++){{
       if(heads[i].getBoundingClientRect().top<=132)cur=heads[i];else break;
     }}
-    if(cur&&byId[cur.id]){{
-      links.forEach(function(a){{a.classList.remove('on');}});
-      byId[cur.id].classList.add('on');
+    var a=cur?byId[cur.id]:null;
+    if(!a){{
+      if(lastOn){{links.forEach(function(x){{x.classList.remove('on');}});lastOn=null;curEl.textContent='';}}
+      ticking=false;return;
+    }}
+    if(a!==lastOn){{
+      links.forEach(function(x){{x.classList.remove('on');}});
+      a.classList.add('on');lastOn=a;
+      var t=topOf(a);
+      if(t){{
+        var searching=q.value.trim();
+        if(t!==lastTop&&!searching){{
+          lastTop=t;
+          tops.forEach(function(li){{setColl(li,li!==t);}});
+        }}
+        var ca=t.querySelector('a');
+        curEl.textContent=ca?ca.textContent.replace(/\\s+/g,' ').trim():'';
+        if(!searching)reveal(a);
+      }}
     }}
     ticking=false;
   }}
