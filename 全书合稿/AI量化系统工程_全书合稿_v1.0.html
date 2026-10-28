@@ -13,7 +13,7 @@
  --soft:#1d242b;--accent:#6fa8e8;--side:#11161a;--hl:#22303f;--bar:21,26,31;}
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{margin:0;background:var(--bg);color:var(--fg);
+body{margin:0;padding-left:19.5rem;background:var(--bg);color:var(--fg);
  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
  font-size:16.5px;line-height:1.95;}
 
@@ -48,7 +48,7 @@ body{margin:0;background:var(--bg);color:var(--fg);
 .scrim{display:none;position:fixed;inset:3.1rem 0 0 0;background:rgba(0,0,0,.35);z-index:35;}
 
 /* ---- 正文 ---- */
-.wrap{max-width:46rem;margin:0 0 0 19.5rem;padding:4.4rem 2.2rem 8rem;scroll-margin-top:4rem;}
+.wrap{max-width:46rem;margin:0 auto;padding:4.4rem 2.2rem 8rem;scroll-margin-top:4rem;}
 h1,h2,h3,h4{line-height:1.45;font-weight:700;scroll-margin-top:3.9rem;}
 h1{font-size:1.85rem;margin:3.4rem 0 1.2rem;padding-bottom:.5rem;border-bottom:2px solid var(--line);}
 h2{font-size:1.35rem;margin:2.4rem 0 .9rem;}
@@ -89,15 +89,17 @@ img{max-width:100%;height:auto;}
 #back.show{opacity:1;pointer-events:auto;}
 
 @media (max-width:960px){
+ body{padding-left:0;}
  .bar{display:flex;} #menu{display:inline-block;}
  .side{transform:translateX(-100%);transition:transform .22s ease;width:17.5rem;box-shadow:0 0 24px rgba(0,0,0,.18);}
  .side.open{transform:none;}
  .scrim.show{display:block;}
- .wrap{margin-left:0;padding:4.2rem 1.15rem 6rem;max-width:none;}
+ .wrap{margin:0;padding:4.2rem 1.15rem 6rem;max-width:none;}
  h1{font-size:1.5rem;} h2{font-size:1.2rem;}
  body{font-size:16px;line-height:1.9;}
 }
 @media print{
+ body{padding-left:0;}
  .bar,.side,.scrim,#back,#prog{display:none!important;}
  .wrap{margin:0;max-width:none;padding:0;}
  body{font-size:10.5pt;line-height:1.75;background:#fff;color:#000;}
